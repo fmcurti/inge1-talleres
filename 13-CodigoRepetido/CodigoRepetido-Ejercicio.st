@@ -16,48 +16,29 @@ Error subclass: #NotFound
 
 !classDefinition: #CustomerBookTest category: #'CodigoRepetido-Ejercicio'!
 TestCase subclass: #CustomerBookTest
-	instanceVariableNames: ''
+	instanceVariableNames: 'customerBook paulMcCartney johnLennon'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'CodigoRepetido-Ejercicio'!
 
-!CustomerBookTest methodsFor: 'testing' stamp: 'FC 9/17/2020 21:32:51'!
+!CustomerBookTest methodsFor: 'testing' stamp: 'T 9/22/2020 18:30:39'!
 test01AddingCustomerShouldNotTakeMoreThan50Milliseconds
 
-	| customerBook executionTime |
-	
-	customerBook := CustomerBook new.
-	
-	executionTime := self timeExecution: [
-	customerBook addCustomerNamed: 'John Lennon'.
-	].
-	
-	self assert: (executionTime) < (50 * millisecond)
+	self should: [customerBook addCustomerNamed: 'John Lennon'.] notTakeMoreThan: 50.
 	
 ! !
 
-!CustomerBookTest methodsFor: 'testing' stamp: 'FC 9/17/2020 21:41:32'!
+!CustomerBookTest methodsFor: 'testing' stamp: 'T 9/22/2020 18:31:49'!
 test02RemovingCustomerShouldNotTakeMoreThan100Milliseconds
 
-	| customerBook executionTime paulMcCartney |
+	customerBook addCustomerNamed: paulMcCartney.
 	
-	paulMcCartney:= 'Paul McCartney'.
-	customerBook := self initializeBookWithTestCustomer: paulMcCartney.
-	  
-	executionTime := self timeExecution: [
-	customerBook removeCustomerNamed: paulMcCartney.
-	].
-	
-	self assert: (executionTime) < (100 * millisecond)
+	self should:  [ customerBook removeCustomerNamed: paulMcCartney. ] notTakeMoreThan: 100.
 	
 ! !
 
-!CustomerBookTest methodsFor: 'testing' stamp: 'HernanWilkinson 5/9/2012 18:12'!
+!CustomerBookTest methodsFor: 'testing' stamp: 'T 9/22/2020 18:25:19'!
 test03CanNotAddACustomerWithEmptyName 
-
-	| customerBook |
-			
-	customerBook := CustomerBook new.
 
 	[ customerBook addCustomerNamed: ''.
 	self fail ]
@@ -66,65 +47,51 @@ test03CanNotAddACustomerWithEmptyName
 			self assert: anError messageText = CustomerBook customerCanNotBeEmptyErrorMessage.
 			self assert: customerBook isEmpty ]! !
 
-!CustomerBookTest methodsFor: 'testing' stamp: 'FC 9/17/2020 21:42:18'!
+!CustomerBookTest methodsFor: 'testing' stamp: 'T 9/22/2020 18:26:04'!
 test04CanNotRemoveAnInvalidCustomer
+
+	customerBook addCustomerNamed: johnLennon.
 	
-	| customerBook johnLennon |
-			
-	johnLennon := 'John Lennon'.
-	customerBook:= self initializeBookWithTestCustomer: johnLennon .
-	
-	[ customerBook removeCustomerNamed: 'Paul McCartney'.
+	[customerBook removeCustomerNamed: paulMcCartney.
 	self fail ]
 		on: NotFound 
 		do: [ :anError | 
 			self assert: customerBook numberOfCustomers = 1.
-			self assert: (customerBook includesCustomerNamed: johnLennon) ]
+			self assert: (customerBook includesCustomerNamed: johnLennon) ].
 ! !
 
-!CustomerBookTest methodsFor: 'testing' stamp: 'FC 9/17/2020 21:51:15'!
+!CustomerBookTest methodsFor: 'testing' stamp: 'T 9/22/2020 18:25:23'!
 test05SuspendingACustomerShouldNotRemoveItFromCustomerBook
 
-	| customerBook paulMcCartney|
-		
-	paulMcCartney := 'Paul McCartney'.
-	customerBook:= self initializeBookWithTestCustomer: paulMcCartney.
-
+	customerBook addCustomerNamed: paulMcCartney.
 
 	customerBook suspendCustomerNamed: paulMcCartney.
 	
-	self numberOfActiveCustomers: 0 SuspendedCustomers: 1 TotalCustomers: 1   in: customerBook.
+	self numberOfActiveCustomers: 0 SuspendedCustomers: 1 in: customerBook.
 	self assert: (customerBook includesCustomerNamed: paulMcCartney).
 	
 
 	
 ! !
 
-!CustomerBookTest methodsFor: 'testing' stamp: 'FC 9/17/2020 21:50:22'!
+!CustomerBookTest methodsFor: 'testing' stamp: 'T 9/22/2020 18:25:23'!
 test06RemovingASuspendedCustomerShouldRemoveItFromCustomerBook
 
-	| customerBook paulMcCartney|
-	
-	paulMcCartney := 'Paul McCartney'.
-	customerBook  := self initializeBookWithTestCustomer: paulMcCartney .
-	
+	customerBook  addCustomerNamed: paulMcCartney.
 	customerBook suspendCustomerNamed: paulMcCartney.
 	customerBook removeCustomerNamed: paulMcCartney.
 	
-	self numberOfActiveCustomers: 0 SuspendedCustomers: 0 TotalCustomers: 0   in: customerBook.
+	self numberOfActiveCustomers: 0 SuspendedCustomers: 0 in: customerBook.
 	self deny: (customerBook includesCustomerNamed: paulMcCartney).
 
 
 	
 ! !
 
-!CustomerBookTest methodsFor: 'testing' stamp: 'FC 9/17/2020 21:44:53'!
+!CustomerBookTest methodsFor: 'testing' stamp: 'T 9/22/2020 18:25:27'!
 test07CanNotSuspendAnInvalidCustomer
-	
-	| customerBook johnLennon |			
 
-	johnLennon := 'John Lennon'.
-	customerBook := self initializeBookWithTestCustomer: johnLennon .
+	customerBook addCustomerNamed: johnLennon.
 	
 	[ customerBook suspendCustomerNamed: 'George Harrison'.
 	self fail ]
@@ -134,13 +101,10 @@ test07CanNotSuspendAnInvalidCustomer
 			self assert: (customerBook includesCustomerNamed: johnLennon) ]
 ! !
 
-!CustomerBookTest methodsFor: 'testing' stamp: 'FC 9/17/2020 21:44:32'!
+!CustomerBookTest methodsFor: 'testing' stamp: 'T 9/22/2020 18:25:27'!
 test08CanNotSuspendAnAlreadySuspendedCustomer
-	
-	| customerBook johnLennon |
-			
-	johnLennon := 'John Lennon'.
-	customerBook := self initializeBookWithTestCustomer: johnLennon.
+
+	customerBook addCustomerNamed: johnLennon.
 	
 	customerBook suspendCustomerNamed: johnLennon.
 	
@@ -153,26 +117,37 @@ test08CanNotSuspendAnAlreadySuspendedCustomer
 ! !
 
 
-!CustomerBookTest methodsFor: 'helpers' stamp: 'FC 9/17/2020 21:40:16'!
-initializeBookWithTestCustomer: customerName
-	|customerBook|
+!CustomerBookTest methodsFor: 'setUp' stamp: 'T 9/22/2020 18:25:57'!
+setUp
+
 	customerBook := CustomerBook new.
-	customerBook addCustomerNamed: customerName.
-	^customerBook! !
+	paulMcCartney := 'Paul McCartney'.
+	johnLennon := 'John Lennon'.! !
 
-!CustomerBookTest methodsFor: 'helpers' stamp: 'FC 9/17/2020 21:48:55'!
-numberOfActiveCustomers: activeCustomers SuspendedCustomers: suspendedCustomers TotalCustomers: totalCustomers in: customerBook
 
-	self assert: activeCustomers equals: customerBook numberOfActiveCustomers.
-	self assert: suspendedCustomers equals: customerBook numberOfSuspendedCustomers.
-	self assert: totalCustomers equals: customerBook numberOfCustomers! !
+!CustomerBookTest methodsFor: 'helpers' stamp: 'T 9/22/2020 18:25:06'!
+numberOfActiveCustomers: activeCustomers SuspendedCustomers: suspendedCustomers in: aCustomerBook
 
-!CustomerBookTest methodsFor: 'helpers' stamp: 'FC 9/17/2020 21:31:49'!
-timeExecution: codigoATimear
+	self assert: activeCustomers equals: aCustomerBook numberOfActiveCustomers.
+	self assert: suspendedCustomers equals: aCustomerBook numberOfSuspendedCustomers.
+	self assert: activeCustomers + suspendedCustomers equals: aCustomerBook numberOfCustomers! !
+
+!CustomerBookTest methodsFor: 'helpers' stamp: 'T 9/22/2020 18:29:36'!
+should: aClosure notTakeMoreThan: limitTime
+
+	| executionTime |
+	
+	executionTime := self timeExecution: aClosure.
+	
+	self assert: (executionTime) < (limitTime * millisecond)! !
+
+!CustomerBookTest methodsFor: 'helpers' stamp: 'T 9/22/2020 18:28:04'!
+timeExecution: closureToTime
        
   	|millisecondsBeforeRunning millisecondsAfterRunning|
+	
 	millisecondsBeforeRunning := Time millisecondClockValue * millisecond.
-	codigoATimear value.
+	closureToTime value.
 	millisecondsAfterRunning := Time millisecondClockValue * millisecond.
 	^millisecondsAfterRunning  - millisecondsBeforeRunning.! !
 
@@ -202,22 +177,22 @@ initialize
 	suspended:= OrderedCollection new.! !
 
 
-!CustomerBook methodsFor: 'helpers' stamp: 'FC 9/18/2020 18:36:39'!
-findAndRemove: anElement from: aCollection
-	1 to: aCollection size do: 
+!CustomerBook methodsFor: 'helpers' stamp: 'T 9/22/2020 18:22:15'!
+findAndRemove: aCustomer from: aCustomerGroup
+	1 to: aCustomerGroup size do: 
 	[ :index |
-		anElement = (aCollection at: index)
+		aCustomer = (aCustomerGroup at: index)
 			ifTrue: [
-				aCollection removeAt: index.
-				^ anElement
+				aCustomerGroup removeAt: index.
+				^ aCustomer
 			] 
 	].! !
 
-!CustomerBook methodsFor: 'helpers' stamp: 'FC 9/18/2020 18:48:30'!
-move: anElement from: aCollection to: anotherCollection
+!CustomerBook methodsFor: 'helpers' stamp: 'T 9/22/2020 18:22:55'!
+move: aCustomer from: aCustomerGroup to: anotherCustomerGroup
 	
-	aCollection remove: anElement.
-	anotherCollection add: anElement
+	aCustomerGroup remove: aCustomer.
+	anotherCustomerGroup add: aCustomer
 ! !
 
 
