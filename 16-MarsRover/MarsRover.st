@@ -18,61 +18,97 @@ test01RoverWithNoCommandsRemainsTheSame
 	self assert: rover currentPosition equals: 1@1.
 	self assert: rover currentDirection equals: north.! !
 
-!MarsRoverTest methodsFor: 'tests' stamp: 'FC 10/25/2020 18:17:46'!
-test02RoverMovesForward
+!MarsRoverTest methodsFor: 'tests' stamp: 'FC 10/26/2020 15:44:34'!
+test02RoverRotatesLeftWhenFacingNorth
 	
 	| rover |
 	
 	rover := MarsRover withPosition: 1@1 facing: north.
 	
-	rover makeMovements: 'f'.
-	
-	self assert: rover currentPosition equals: 0@1.
-	self assert: rover currentDirection equals: north.! !
-
-!MarsRoverTest methodsFor: 'tests' stamp: 'FC 10/25/2020 18:18:08'!
-test03RoverRotatesRight
-	
-	| rover |
-	
-	rover := MarsRover withPosition: 1@1 facing: north.
-	rover makeMovements: 'r'.
-	
-	self assert: rover currentPosition equals: 1@1.
-	self assert: rover currentDirection equals: east.! !
-
-!MarsRoverTest methodsFor: 'tests' stamp: 'FC 10/25/2020 18:18:23'!
-test04MovesBackwards
-	
-	| rover |
-	rover := MarsRover withPosition: 1@1 facing: north.
-	rover makeMovements: 'b'.
-	
-	self assert: rover currentPosition equals: 2@1.
-	self assert: rover currentDirection equals: north.! !
-
-!MarsRoverTest methodsFor: 'tests' stamp: 'FC 10/25/2020 18:18:33'!
-test05RoverRotatesLeft
-	
-	| rover |
-	rover := MarsRover withPosition: 1@1 facing: north.
 	rover makeMovements: 'l'.
 	
 	self assert: rover currentPosition equals: 1@1.
 	self assert: rover currentDirection equals: west.! !
 
-!MarsRoverTest methodsFor: 'tests' stamp: 'FC 10/25/2020 18:19:01'!
-test06RoverUnderstandsMoreThanOneCommand
+!MarsRoverTest methodsFor: 'tests' stamp: 'FC 10/26/2020 15:44:58'!
+test03RoverMovesAndRotatesWhenFacingNorth
 	
 	| rover |
-	rover := MarsRover withPosition: 1@1 facing: north.
-	rover makeMovements: 'bbbrff'.
 	
-	self assert: rover currentPosition equals: 4@3.
+	rover := MarsRover withPosition: 1@1 facing: north.
+	rover makeMovements: 'ffbr'.
+	
+	self assert: rover currentPosition equals: 0@1.
 	self assert: rover currentDirection equals: east.! !
 
-!MarsRoverTest methodsFor: 'tests' stamp: 'FC 10/25/2020 18:20:48'!
-test07RoverStopsAfterInvalidCommand
+!MarsRoverTest methodsFor: 'tests' stamp: 'FC 10/26/2020 15:47:19'!
+test04RoverRotatesLeftWhenFacingEast
+	
+	| rover |
+	
+	rover := MarsRover withPosition: 1@1 facing: east.
+	rover makeMovements: 'l'.
+	
+	self assert: rover currentPosition equals: 1@1.
+	self assert: rover currentDirection equals: north.! !
+
+!MarsRoverTest methodsFor: 'tests' stamp: 'FC 10/26/2020 15:47:30'!
+test05RoverMovesAndRotatesWhenFacingEast
+	
+	| rover |
+	
+	rover := MarsRover withPosition: 1@1 facing: east.
+	rover makeMovements: 'ffbr'.
+	
+	self assert: rover currentPosition equals: 1@2.
+	self assert: rover currentDirection equals: south.! !
+
+!MarsRoverTest methodsFor: 'tests' stamp: 'FC 10/26/2020 15:48:34'!
+test06RoverRotatesLeftWhenFacingSouth
+	
+	| rover |
+	
+	rover := MarsRover withPosition: 1@1 facing: south.
+	rover makeMovements: 'l'.
+	
+	self assert: rover currentPosition equals: 1@1.
+	self assert: rover currentDirection equals: east.! !
+
+!MarsRoverTest methodsFor: 'tests' stamp: 'FC 10/26/2020 15:49:10'!
+test07RoverMovesAndRotatesWhenFacingSouth
+	
+	| rover |
+	
+	rover := MarsRover withPosition: 1@1 facing: south.
+	rover makeMovements: 'ffbr'.
+	
+	self assert: rover currentPosition equals: 2@1.
+	self assert: rover currentDirection equals: west.! !
+
+!MarsRoverTest methodsFor: 'tests' stamp: 'FC 10/26/2020 15:49:38'!
+test08RoverRotatesLeftWhenFacingWest
+	
+	| rover |
+	
+	rover := MarsRover withPosition: 1@1 facing: west.
+	rover makeMovements: 'l'.
+	
+	self assert: rover currentPosition equals: 1@1.
+	self assert: rover currentDirection equals: south.! !
+
+!MarsRoverTest methodsFor: 'tests' stamp: 'FC 10/26/2020 15:50:07'!
+test09RoverMovesAndRotatesWhenFacingWest
+	
+	| rover |
+	
+	rover := MarsRover withPosition: 1@1 facing: west.
+	rover makeMovements: 'ffbr'.
+	
+	self assert: rover currentPosition equals: 1@0.
+	self assert: rover currentDirection equals: north.! !
+
+!MarsRoverTest methodsFor: 'tests' stamp: 'FC 10/26/2020 15:50:17'!
+test10RoverStopsAfterInvalidCommand
 	
 	| rover |
 	rover := MarsRover withPosition: 1@1 facing: north.
@@ -217,7 +253,12 @@ makeMovements: aCommandSequence
 	]! !
 
 
-!MarsRover methodsFor: 'operations - private' stamp: 'FC 10/25/2020 18:25:11'!
+!MarsRover methodsFor: 'operations - private' stamp: 'FC 10/26/2020 15:52:48'!
+errorInvalidCommand
+
+	^ self error: self class invalidCommandMessage! !
+
+!MarsRover methodsFor: 'operations - private' stamp: 'FC 10/26/2020 15:52:48'!
 makeMove: aCommand	
 	(self isValidCommand: aCommand) ifTrue: [
 		(self isMovement: aCommand)
@@ -236,7 +277,7 @@ makeMove: aCommand
 			].
 	]
 	ifFalse: [
-		self error: self class invalidCommandMessage.
+		self errorInvalidCommand.
 		]! !
 
 !MarsRover methodsFor: 'operations - private' stamp: 'FC 10/25/2020 18:11:41'!
