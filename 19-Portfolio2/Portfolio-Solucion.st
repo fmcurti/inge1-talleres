@@ -725,6 +725,12 @@ signalCanNotAddAccount
 	
 	self error: self class canNotAddAccountErrorMessage! !
 
+
+!Portfolio methodsFor: 'reporting' stamp: 't 11/15/2020 19:11:36'!
+makeReportFor: aReport
+	accounts do: [:anAccount | anAccount makeReportFor: aReport].
+	! !
+
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
 !classDefinition: 'Portfolio class' category: 'Portfolio-Solucion'!
@@ -803,6 +809,12 @@ isComposedBy: anAccount
 	^self = anAccount ! !
 
 
+!ReceptiveAccount methodsFor: 'reporting' stamp: 't 11/15/2020 19:16:07'!
+makeReportFor: aReport
+	transactions do: [:aTransaction | 
+		aTransaction handleReport: aReport].! !
+
+
 !ReceptiveAccount methodsFor: 'composition' stamp: 'HAW 5/25/2019 12:03:32'!
 addedTo: aPortfolio 
 	
@@ -857,9 +869,9 @@ initializeFor: aValue
 	value := aValue ! !
 
 
-!Deposit methodsFor: 'report' stamp: 't 11/12/2020 21:26:17'!
+!Deposit methodsFor: 'report' stamp: 't 11/15/2020 19:06:40'!
 handleReport: aReport
-	^aReport xxxDeposit: self.! !
+	^aReport reportForDeposit: self.! !
 
 
 !Deposit methodsFor: 'value' stamp: 'HernanWilkinson 7/13/2011 18:38'!
@@ -919,9 +931,9 @@ TransferPart subclass: #TransferReceive
 	poolDictionaries: ''
 	category: 'Portfolio-Solucion'!
 
-!TransferReceive methodsFor: 'report' stamp: 't 11/12/2020 21:26:23'!
+!TransferReceive methodsFor: 'report' stamp: 't 11/15/2020 19:06:51'!
 handleReport: aReport
-	^aReport xxxTransferReceive: self.! !
+	^aReport reportForTransferReceive: self.! !
 
 
 !TransferReceive methodsFor: 'accessing' stamp: 't 11/9/2020 20:23:25'!
@@ -953,9 +965,9 @@ receivePart
 	^transfer receivePart.! !
 
 
-!TransferSend methodsFor: 'report' stamp: 't 11/12/2020 21:26:27'!
+!TransferSend methodsFor: 'report' stamp: 't 11/15/2020 19:06:58'!
 handleReport: aReport
-	^aReport xxxTransferSend: self.! !
+	^aReport reportForTransferSend: self.! !
 
 
 !classDefinition: #Withdraw category: 'Portfolio-Solucion'!
@@ -971,9 +983,9 @@ initializeFor: aValue
 	value := aValue ! !
 
 
-!Withdraw methodsFor: 'report' stamp: 't 11/12/2020 21:26:33'!
+!Withdraw methodsFor: 'report' stamp: 't 11/15/2020 19:07:06'!
 handleReport: aReport
-	^aReport xxxWithdraw: self.! !
+	^aReport reportForWithdraw: self.! !
 
 
 !Withdraw methodsFor: 'value' stamp: 'HernanWilkinson 7/13/2011 18:33'!
@@ -1006,29 +1018,29 @@ Object subclass: #Reports
 	poolDictionaries: ''
 	category: 'Portfolio-Solucion'!
 
-
-!Reports methodsFor: 'as yet unclassified' stamp: 't 11/12/2020 21:35:17'!
-initializeFor: anAccount 
-	account := anAccount.! !
-
-!Reports methodsFor: 'as yet unclassified' stamp: 't 11/12/2020 21:51:14'!
-xxxDeposit: aDeposit
+!Reports methodsFor: 'operations' stamp: 't 11/15/2020 19:06:40'!
+reportForDeposit: aDeposit
 	self subclassResponsibility.! !
 
-!Reports methodsFor: 'as yet unclassified' stamp: 't 11/12/2020 21:51:18'!
-xxxTransferReceive: aTransferReceive
+!Reports methodsFor: 'operations' stamp: 't 11/15/2020 19:06:51'!
+reportForTransferReceive: aTransferReceive
 	self subclassResponsibility.
 	! !
 
-!Reports methodsFor: 'as yet unclassified' stamp: 't 11/12/2020 21:51:20'!
-xxxTransferSend: aTransferSend
+!Reports methodsFor: 'operations' stamp: 't 11/15/2020 19:06:58'!
+reportForTransferSend: aTransferSend
 	self subclassResponsibility.
 	! !
 
-!Reports methodsFor: 'as yet unclassified' stamp: 't 11/12/2020 21:51:23'!
-xxxWithdraw: aWithdraw
+!Reports methodsFor: 'operations' stamp: 't 11/15/2020 19:07:06'!
+reportForWithdraw: aWithdraw
 	self subclassResponsibility.
 	! !
+
+
+!Reports methodsFor: 'initialization' stamp: 't 11/12/2020 21:35:17'!
+initializeFor: anAccount 
+	account := anAccount.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -1043,66 +1055,63 @@ for: anAccount
 
 !classDefinition: #AccountSummary category: 'Portfolio-Solucion'!
 Reports subclass: #AccountSummary
-	instanceVariableNames: ''
+	instanceVariableNames: 'summary'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Portfolio-Solucion'!
 
-!AccountSummary methodsFor: 'initialization' stamp: 't 11/12/2020 21:17:36'!
-xxxDeposit: aDeposit
-	^'deposito por ', aDeposit value asString.! !
+!AccountSummary methodsFor: 'operations' stamp: 't 11/15/2020 19:18:57'!
+reportForDeposit: aDeposit
+	summary add: 'deposito por ', aDeposit value asString.! !
 
-!AccountSummary methodsFor: 'initialization' stamp: 't 11/12/2020 21:18:56'!
-xxxTransferReceive: aTransferReceive
-	^'entrada por transferencia de ', aTransferReceive value asString.! !
+!AccountSummary methodsFor: 'operations' stamp: 't 11/15/2020 19:19:03'!
+reportForTransferReceive: aTransferReceive
+	summary add: 'entrada por transferencia de ', aTransferReceive value asString.! !
 
-!AccountSummary methodsFor: 'initialization' stamp: 't 11/12/2020 21:18:45'!
-xxxTransferSend: aTransferSend
-	^'salida por transferencia de ', aTransferSend value asString.! !
+!AccountSummary methodsFor: 'operations' stamp: 't 11/15/2020 19:19:08'!
+reportForTransferSend: aTransferSend
+	summary add: 'salida por transferencia de ', aTransferSend value asString.! !
 
-!AccountSummary methodsFor: 'initialization' stamp: 't 11/12/2020 21:18:17'!
-xxxWithdraw: aWithdraw
-	^'extraccion por ', aWithdraw value asString.! !
+!AccountSummary methodsFor: 'operations' stamp: 't 11/15/2020 19:19:14'!
+reportForWithdraw: aWithdraw
+	summary add: 'extraccion por ', aWithdraw value asString.! !
 
 
-!AccountSummary methodsFor: 'accessing' stamp: 't 11/12/2020 21:27:27'!
-entries
-	| summary |	
-	
-	summary := account transactions collect: [:aTransaction |
-		aTransaction handleReport: self].
+!AccountSummary methodsFor: 'accessing' stamp: 't 11/15/2020 19:18:24'!
+entries	
+	summary := OrderedCollection new.
+	account makeReportFor: self.
 	summary add: 'balance = ', account balance asString.
 	^summary.! !
 
 
 !classDefinition: #TransferNet category: 'Portfolio-Solucion'!
 Reports subclass: #TransferNet
-	instanceVariableNames: ''
+	instanceVariableNames: 'value'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Portfolio-Solucion'!
 
-!TransferNet methodsFor: 'operations' stamp: 't 11/12/2020 22:03:46'!
+!TransferNet methodsFor: 'operations' stamp: 't 11/15/2020 19:13:45'!
+reportForDeposit: aDeposit
+! !
+
+!TransferNet methodsFor: 'operations' stamp: 't 11/15/2020 19:14:04'!
+reportForTransferReceive: aTransferReceive
+	value:= value + aTransferReceive value.! !
+
+!TransferNet methodsFor: 'operations' stamp: 't 11/15/2020 19:14:43'!
+reportForTransferSend: aTransferSend
+	value := value - aTransferSend value.! !
+
+!TransferNet methodsFor: 'operations' stamp: 't 11/15/2020 19:14:46'!
+reportForWithdraw: aWithdraw! !
+
+!TransferNet methodsFor: 'operations' stamp: 't 11/15/2020 19:13:30'!
 value
-	^account transactions sum: [:aTransaction | 
-		aTransaction handleReport: self]
-	ifEmpty: [0].! !
-
-!TransferNet methodsFor: 'operations' stamp: 't 11/12/2020 21:52:29'!
-xxxDeposit: aDeposit
-	^ 0.! !
-
-!TransferNet methodsFor: 'operations' stamp: 't 11/12/2020 21:48:37'!
-xxxTransferReceive: aTransferReceive
-	^ aTransferReceive value.! !
-
-!TransferNet methodsFor: 'operations' stamp: 't 11/12/2020 21:49:24'!
-xxxTransferSend: aTransferSend
-	^ aTransferSend value * -1.! !
-
-!TransferNet methodsFor: 'operations' stamp: 't 11/12/2020 21:53:27'!
-xxxWithdraw: aWithdraw
-	^ 0.! !
+	value := 0.
+	account makeReportFor: self.
+	^value.! !
 
 
 !classDefinition: #Transfer category: 'Portfolio-Solucion'!
